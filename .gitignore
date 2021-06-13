@@ -46,4 +46,5 @@ data
 data/
 reference
 reference/
+*.log
 

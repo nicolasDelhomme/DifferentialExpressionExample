@@ -19,7 +19,8 @@ git submodule init
 git submodule update --remote
 cd UPSCb-common
 git submodule init
-git submodule update --remote
+#git submodule update --remote
+git submodule update
 cd ..
 ```
 

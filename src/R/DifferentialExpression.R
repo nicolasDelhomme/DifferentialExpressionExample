@@ -1,6 +1,6 @@
 #' ---
 #' title: "Differential Expression"
-#' author: "CHANGEME"
+#' author: "Nicolas Delhomme"
 #' date: "`r Sys.Date()`"
 #' output:
 #'  html_document:
@@ -24,6 +24,7 @@ suppressPackageStartupMessages({
 
 #' * Helper files
 suppressMessages({
+    source(here("UPSCb-common/Rtoolbox/src/plotEnrichedTreemap.R"))
     source(here("UPSCb-common/src/R/featureSelection.R"))
     source(here("UPSCb-common/src/R/volcanoPlot.R"))
     source(here("UPSCb-common/src/R/gopher.R"))
@@ -253,16 +254,16 @@ extractEnrichmentResults <- function(enrichment,task="go",
 #' that contains a DESeqDataSet object. If you ran the 
 #' biological QA template, you need not change anything
 #' ```
-load(here("data/analysis/salmon/dds.rda"))
+load(here("analysis/salmon/dds.rda"))
 
 #' ## Normalisation for visualisation
 vsd <- varianceStabilizingTransformation(dds,blind=FALSE)
 vst <- assay(vsd)
 vst <- vst - min(vst)
-dir.create(here("data/analysis/DE"),showWarnings=FALSE)
-save(vst,file=here("data/analysis/DE/vst-aware.rda"))
+dir.create(here("analysis/DE"),showWarnings=FALSE)
+save(vst,file=here("analysis/DE/vst-aware.rda"))
 write_delim(as.data.frame(vst) %>% rownames_to_column("ID"),
-            here("data/analysis/DE/vst-aware.tsv"))
+            here("analysis/DE/vst-aware.tsv"))
 
 #' ## Gene of interests
 #' ```{r goi, echo=FALSE,eval=FALSE}
@@ -364,12 +365,11 @@ dev.null <- lapply(intersect(B8_vs_B4$all,ZE_B8_vs_B4$all),
                    line_plot,dds=dds,vst=vst)
 
 #' #### All DE genes
-#' ```{r venn2, echo=FALSE,eval=FALSE}
-#'grid.newpage()
-#'grid.draw(venn.diagram(lapply(res.list,"[[","all"),
-#'                       NULL,
-#'                       fill=pal[1:3]))
-#' ```
+grid.newpage()
+grid.draw(venn.diagram(lapply(res.list,"[[","all"),
+                       NULL,
+                       fill=pal[1:3]))
+
 
 #' #### DE genes (up in mutant)
 #' ```{r venn3, echo=FALSE,eval=FALSE}
@@ -419,8 +419,12 @@ background <- sub("\\.1","",background)
 res.list <- lapply(res.list,lapply,sub,pattern="\\.1",replacement="")
 
 enr.list <- lapply(res.list,function(r){
-    lapply(r,gopher,background=background,task="go",url="pabies")
+    lapply(r,gopher,background=background,task="go",url="pabies",
+           host="http://993e4e53daed",port=5433)
 })
+
+enr <- gopher(sub("\\.1","",B8_vs_B4$all),background=background,task="go",url="pabies",
+              host="http://993e4e53daed",port=5433)
 
 dev.null <- lapply(names(enr.list),function(n){
     lapply(names(enr.list[[n]]),function(de){
@@ -430,6 +434,10 @@ dev.null <- lapply(names(enr.list),function(n){
                                  default_prefix=paste(n,de,sep="-"))
     })
 })
+
+extractEnrichmentResults(enr,
+                         diff.exp="all",go.namespace = "MF",
+                         genes=sub("\\.1","",B8_vs_B4$all),export = FALSE)
 
 #' # Session Info 
 #'  ```{r session info, echo=FALSE}

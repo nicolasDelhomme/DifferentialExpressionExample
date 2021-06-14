@@ -17,6 +17,10 @@ default). In the RStudio terminal do:
 ```{bash}
 git submodule init
 git submodule update --remote
+cd UPSCb-common
+git submodule init
+git submodule update --remote
+cd ..
 ```
 
 4. Copy the DifferentialExpression template from UPSCb-common/templates/R to src/R

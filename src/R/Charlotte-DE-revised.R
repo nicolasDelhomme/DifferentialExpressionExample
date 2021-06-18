@@ -30,8 +30,8 @@ source(here("UPSCb-common/src/R/volcanoPlot.R"))
 pal <- brewer.pal(8,"Dark2")
 
 #' ```{r, load, echo=FALSE, eval=TRUE}
-load(here("data/airway/dds.rda"))
-load(here("data/airway/dge.rda"))
+#' load(here("data/airway/dds.rda"))
+#' load(here("data/airway/dge.rda"))
 #' ```
 
 #' # Differential Expression
@@ -90,6 +90,7 @@ summary(resLFC1)
 table(resLFC1$padj < 0.1)
 
 #' #### Following Schurch et al., RNA, 2016 recommandations
+results(ds_se, lfcThreshold = 0.5, alpha=0.01)
 
 #' ### Visualisation
 #' #### Assessment
@@ -105,6 +106,9 @@ volcanoPlot(res)
 
 #' #### individual genes
 plotCounts(ds_se, gene = "ENSG00000000003.14", intgroup = "dex", 
+           normalized = TRUE, transform = FALSE)
+
+plotCounts(ds_se, gene = "ENSG00000073734.9", intgroup = "dex", 
            normalized = TRUE, transform = FALSE)
 
 #' ## EdgeR
